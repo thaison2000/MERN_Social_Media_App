@@ -15,10 +15,13 @@ import WallpaperIcon from '@mui/icons-material/Wallpaper';
 
 export default function Rightbar({ user }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
-  const [followings, setfollowings] = useState([]);
+  const [followings, setFollowings] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [isFriend, setIsFriend] = useState([]);
   const { user: currentUser, dispatch } = useContext(Context);
   const [profileUpdate, setProfileUpdate] = useState(false);
   const [followed, setFollowed] = useState(false);
+  const [addFriend, setAddFriend] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [background, setBackground] = useState(null);
   const city = useRef()
@@ -33,13 +36,51 @@ export default function Rightbar({ user }) {
     const getFollowings = async () => {
       try {
         const followingList = await axios.get("http://localhost:8800/api/user/followings/" + user?._id);
-        setfollowings(followingList.data);
+        setFollowings(followingList.data);
       } catch (err) {
         console.log(err);
       }
     };
     if(user){
       getFollowings();
+
+    }
+
+  }, [user]);
+
+  useEffect(()=>{
+    setIsFriend(currentUser.friends.includes(user?._id))
+  },[currentUser,user?._id])
+
+  useEffect(() => {
+    const getFriends = async () => {
+      try {
+        const friendList = await axios.get("http://localhost:8800/api/user/friends/" + user?._id);
+        setFriends(friendList.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    if(user){
+      getFriends();
+
+    }
+
+  }, [user]);
+
+  useEffect(() => {
+    const getFriendRequest = async () => {
+      try {
+        const friendRequest = await axios.get("http://localhost:8800/api/friendRequest/" + currentUser._id + "/" + user?._id);
+        if(friendRequest.data){
+          setAddFriend(true)
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    if(user){
+      getFriendRequest();
 
     }
 
@@ -59,6 +100,37 @@ export default function Rightbar({ user }) {
         dispatch({ type: "FOLLOW", payload: user._id });
       }
       setFollowed(!followed);
+    } catch (err) {
+    }
+  };
+
+  const handleClickAddFriend = async () => {
+    try {
+      if (addFriend) {
+        await axios.delete(`http://localhost:8800/api/friendRequest/`, {
+          data: {
+            sendUserId: currentUser._id,
+            receiveUserId: user._id
+          }
+        });
+      } else {
+        await axios.post(`http://localhost:8800/api/friendRequest/`, {
+          sendUserId: currentUser._id,
+          receiveUserId: user._id
+        });
+      }
+      setAddFriend(!addFriend)
+    } catch (err) {
+    }
+  };
+
+  const handleClickUnFriend = async () => {
+    try {
+      
+        await axios.put(`http://localhost:8800/api/user/` + user._id + '/unfriend', {userId: currentUser._id,});
+        await axios.delete(`http://localhost:8800/api/conversation/` + currentUser._id + '/' +  user._id);
+        dispatch({ type: "UNFRIEND", payload: user._id });
+        setIsFriend(!isFriend)
     } catch (err) {
     }
   };
@@ -195,6 +267,15 @@ export default function Rightbar({ user }) {
             {followed ? <RemoveIcon /> : <AddIcon />}
           </button>
         )}
+        {user.username !== currentUser.username && (isFriend ?
+          <button className="rightbarFollowButton" onClick={handleClickUnFriend}>
+            Unfriend
+            <RemoveIcon />
+          </button>: 
+          <button className="rightbarFollowButton" onClick={handleClickAddFriend}>
+            {addFriend ? "Waiting for friend's acceptance" : "Add friend"}
+            {addFriend ? <RemoveIcon /> : <AddIcon />}
+          </button>)}
          {user.username == currentUser.username && (
           <button className="rightbarUpdateProfileButton" onClick={handleClickUpdateProfile}>
             Update Profile
@@ -231,6 +312,29 @@ export default function Rightbar({ user }) {
                   className="rightbarFollowingImg"
                 />
                 <span className="rightbarFollowingName">{following.username}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <h4 className="rightbarTitle">Friends</h4>
+        <div className="rightbarFollowings">
+          {friends.map((friend) => (
+            <Link
+              key={friend._id}
+              to={"/profile/" + friend.username}
+              style={{ textDecoration: "none" }}
+            >
+              <div className="rightbarFollowing">
+                <img
+                  src={
+                    friend.avatar
+                      ? PF + friend.avatar
+                      : PF + "person/noAvatar.png"
+                  }
+                  alt=""
+                  className="rightbarFollowingImg"
+                />
+                <span className="rightbarFollowingName">{friend.username}</span>
               </div>
             </Link>
           ))}

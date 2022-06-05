@@ -26,6 +26,24 @@ const Reducer = (state, action) => {
             ),
           },
         };
+    case "ADDFRIEND":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friends: [...state.user.friends, action.payload],
+        },
+      };   
+    case "UNFRIEND":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friends: state.user.friends.filter(
+            (friend) => friend !== action.payload
+          ),
+        },
+      }; 
     case "UPDATE_PROFILE":
         return {
           ...state,

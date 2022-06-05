@@ -76,6 +76,26 @@ router.get("/followings/:id", async (req, res) => {
   }
 });
 
+//get friends
+router.get("/friends/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    const friends = await Promise.all(
+      user.friends.map((friendId) => {
+        return User.findById(friendId);
+      })
+    );
+    let friendList = [];
+    friends.map((friend) => {
+      const { _id, username, avatar } = friend;
+      friendList.push({ _id, username, avatar });
+    });
+    res.status(200).json(friendList)
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 //follow a user
 router.put("/:id/follow", async (req, res) => {
   if (req.body.userId !== req.params.id) {
@@ -115,6 +135,40 @@ router.put("/:id/unfollow", async (req, res) => {
     }
   } else {
     res.status(403).json("you cant unfollow yourself");
+  }
+});
+
+//add friend
+router.put("/:id/addfriend", async (req, res) => {
+    try {
+      const receiveUser = await User.findById(req.params.id);
+      const sendUser = await User.findById(req.body.userId);
+      if (!receiveUser.friends.includes(req.body.userId)) {
+        await receiveUser.updateOne({ $push: { friends: req.body.userId } });
+        await sendUser.updateOne({ $push: { friends: req.params.id } });
+        res.status(200).json("add friend successfully");
+      } else {
+        res.status(403).json("you have already been this user's friend");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+});
+
+//unfriend
+router.put("/:id/unfriend", async (req, res) => {
+  try {
+    const receiveUser = await User.findById(req.params.id);
+    const sendUser = await User.findById(req.body.userId);
+    if (receiveUser.friends.includes(req.body.userId)) {
+      await receiveUser.updateOne({ $pull: { friends: req.body.userId } });
+      await sendUser.updateOne({ $pull: { friends: req.params.id } });
+      res.status(200).json("unfriend successfully");
+    } else {
+      res.status(403).json("you have not already been this user's friend");
+    }
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 

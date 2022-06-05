@@ -79,7 +79,19 @@ router.get("/timeline/:id", async (req, res) => {
         return Post.find({ userId: followingId });
       })
     );
-    res.status(200).json(userPosts.concat(...followingPosts));
+    const friendPosts = await Promise.all(
+      currentUser.friends.map((friendId) => {
+        return Post.find({ userId: friendId });
+      })
+    );
+    let post = userPosts.concat(...followingPosts).concat(...friendPosts)
+
+    //loai bo bai viet trung lap
+    let timelinePost = []
+    timelinePost = post.filter(function (item) {
+      return timelinePost.includes(item) ? '' : timelinePost.push(item)
+    })
+    res.status(200).json(timelinePost);
   } catch (err) {
     res.status(500).json(err);
   }

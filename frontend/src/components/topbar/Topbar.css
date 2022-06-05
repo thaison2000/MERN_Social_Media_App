@@ -91,3 +91,69 @@
      padding-left: 20px;
      font-size: 22px;
  }
+
+ .topbarRightFriendRequestAlert{
+   display: flex;
+   align-items: center;
+   justify-content: left;
+ }
+
+ .topbarRightFriendRequestAlertIconBadge{
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  color: white;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+ }
+
+ .topbarRightFriendRequestAlert{
+  margin-right: 15px;
+  cursor: pointer;
+  position: relative;
+ }
+
+ .friendRequestAlert{
+  width: 30%;
+  height: 500px;
+  position: fixed;
+  top: 30px;
+  right: 200px;
+  z-index: 1;
+  background-color: rgb(236, 219, 219);
+  border-radius: 10px;
+}
+
+.friendRequestAlertItem{
+  background-color: white;
+  margin:20px;
+  padding: 10px;
+}
+
+.friendRequestAlertItemDesc{
+  color: gray;
+}
+
+.friendRequestAlertItemButtons{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friendRequestAlertItemButton{
+    margin: 10px;
+    width: 120px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    color: white;
+    background-color: rgb(194, 31, 169);
+}
+ 

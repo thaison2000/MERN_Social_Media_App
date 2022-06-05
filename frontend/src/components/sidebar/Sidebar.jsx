@@ -8,10 +8,16 @@ import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import SchoolIcon from '@mui/icons-material/School';
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
-import { Users } from "../../dummyData";
-import CloseFriend from "../closeFriend/CloseFriend";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
+
+  let navigate = useNavigate()
+
+  const handleClickChatIcon = ()=>{
+    navigate('/messenger')
+  }
+
   return (
     <div className="sidebar">
       <div className="sidebarWrapper">
@@ -20,7 +26,7 @@ export default function Sidebar() {
             <RssFeedIcon className="sidebarIcon" htmlColor="Gold"/>
             <span className="sidebarListItemText">Feed</span>
           </li>
-          <li className="sidebarListItem">
+          <li className="sidebarListItem" onClick={handleClickChatIcon}>
             <ChatIcon className="sidebarIcon" htmlColor="SteelBlue"/>
             <span className="sidebarListItemText">Chats</span>
           </li>

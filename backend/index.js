@@ -10,7 +10,10 @@ const multer = require("multer");
 const userRoute = require("./routes/user");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/post");
-const commentRoute = require('./routes/Comment')
+const commentRoute = require('./routes/comment')
+const messageRoute = require('./routes/message')
+const conversationRoute = require('./routes/conversation')
+const friendRequestRoute = require('./routes/friendRequest')
 const path = require("path");
 
 dotenv.config();
@@ -51,7 +54,11 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
 app.use("/api/post", postRoute);
-app.use("/api/comment",commentRoute)
+app.use("/api/comment",commentRoute);
+app.use("/api/message",messageRoute);
+app.use("/api/conversation",conversationRoute);
+app.use("/api/friendRequest",friendRequestRoute);
+
 
 app.listen(8800, () => {
   console.log("Backend server is running!");

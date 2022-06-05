@@ -36,6 +36,10 @@ const UserSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    friends: {
+      type: Array,
+      default: []
+    },
     city: {
       type: String,
       max: 50,
