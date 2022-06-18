@@ -8,7 +8,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
-export default function Post({ post }) {
+export default function Post({ post,socket }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   const [currentPost, setCurrentPost] = useState(post);
   const [likes, setLikes] = useState(post.likes.length);
@@ -56,6 +56,7 @@ export default function Post({ post }) {
     }
   }
 
+
   //xu ly khi like bai dang
   const handleClickLike = () => {
     try {
@@ -63,6 +64,12 @@ export default function Post({ post }) {
     } catch (err) {}
     setLikes(isLiked ? likes - 1 : likes + 1);
     setIsLiked(!isLiked);
+    if(!isLiked){
+      socket.emit("sendNotification", {
+        senderId: currentUser._id,
+        receiverId: post.userId,
+      });
+    }
   };
 
   //xu ly khi comment bai dang

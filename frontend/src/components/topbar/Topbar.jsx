@@ -7,12 +7,40 @@ import { Context } from "../../context/Context";
 import axios from "axios";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
-export default function Topbar() {
+export default function Topbar({socket}) {
   const { user,dispatch } = useContext(Context);
   const [friendRequestAlert, setFriendRequestAlert] = useState(false);
   const [friendRequestUsers, setFriendRequestUsers] = useState([]);
   const  usernameSearch = useRef();
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+  const [notifications, setNotifications] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  console.log(notifications)
+
+  useEffect(() => {
+    socket?.on("getNotification", (data) => {
+      setNotifications((prev) => [...prev, data].reduce((acc, current) => {
+        const x = acc.find(item => item.timestamp === current.timestamp);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []));
+    });
+  }, [socket]);
+
+  const displayNotification = ({ senderId }) => {
+    return (
+      <span className="notification">{`${senderId} like your post.`}</span>
+    );
+  };
+
+  const handleRead = () => {
+    setNotifications([]);
+    setOpen(false);
+  };
 
   let navigate = useNavigate()
 
@@ -127,6 +155,23 @@ export default function Topbar() {
         </div>
       </div>
       <div className="topbarRight">
+      <div className="icons">
+      <div className="icon" onClick={() => setOpen(!open)}>
+          <GroupAddIcon/>
+          {
+            notifications.length >0 &&
+            <div className="counter">{notifications.length}</div>
+          }
+        </div>
+      </div>
+      {open && (
+        <div className="notifications">
+          {notifications.map((n) => displayNotification(n))}
+          <button className="nButton" onClick={handleRead}>
+            Mark as read
+          </button>
+        </div>
+      )}
           <div className="topbarRightFriendRequestAlert" onClick={handleClickFriendRequestAlert}>
             <GroupAddIcon/>
             <span className="topbarRightFriendRequestAlertIconBadge">{friendRequestUsers.length}</span>

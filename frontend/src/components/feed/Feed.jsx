@@ -5,7 +5,7 @@ import "./Feed.css";
 import axios from "axios";
 import { Context } from "../../context/Context";
 
-export default function Feed({ username }) {
+export default function Feed({ username,socket }) {
   const [posts, setPosts] = useState([]);
   const { user } = useContext(Context);
 
@@ -30,7 +30,7 @@ export default function Feed({ username }) {
         {(!username || username === user.username) && <Share />}
         {posts.map((p) => {
           return (
-          <Post key={p._id} post={p}  />
+          <Post key={p._id} post={p} socket={socket} />
         )})}
       </div>
     </div>

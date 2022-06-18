@@ -1,6 +1,6 @@
 const io = require("socket.io")(8900, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: "*",
     },
   });
   
@@ -20,7 +20,7 @@ const io = require("socket.io")(8900, {
   };
   
   io.on("connection", (socket) => {
-    //when ceonnect
+    //when connect
     console.log("a user connected.");
   
     //take userId and socketId from user
@@ -28,15 +28,16 @@ const io = require("socket.io")(8900, {
       addUser(userId, socket.id);
       io.emit("getUsers", users);
     });
-  
-    //send and get message
-    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-      const user = getUser(receiverId);
-      io.to(user.socketId).emit("getMessage", {
+
+    //send noti
+    socket.on("sendNotification", ({ senderId, receiverId }) => {
+      const receiver = getUser(receiverId);
+      io.to(receiver.socketId).emit("getNotification", {
         senderId,
-        text,
       });
     });
+
+    
   
     //when disconnect
     socket.on("disconnect", () => {

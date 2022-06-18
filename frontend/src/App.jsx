@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import { useContext } from "react";
 import { Context } from "./context/Context";
+import Topbar from "./components/topbar/Topbar";
 
 function App() {
 
