@@ -6,7 +6,6 @@ import ChatOnline from "../../components/chatOnline/ChatOnline";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Context } from "../../context/Context";
 import axios from "axios";
-import { io } from "socket.io-client";
 
 export default function Messenger() {
   const [conversations, setConversations] = useState([]);
@@ -15,13 +14,11 @@ export default function Messenger() {
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const socket = useRef();
   const { user } = useContext(Context);
   const scrollRef = useRef();
 
   useEffect(() => {
-    socket.current = io("ws://localhost:8900");
-    socket.current.on("getMessage", (data) => {
+    user.socket.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -35,15 +32,6 @@ export default function Messenger() {
       currentChat?.members.includes(arrivalMessage.sender) &&
       setMessages((prev) => [...prev, arrivalMessage]);
   }, [arrivalMessage, currentChat]);
-
-  useEffect(() => {
-    socket.current.emit("addUser", user._id);
-    socket.current.on("getUsers", (users) => {
-      setOnlineUsers(
-        user.friends.filter((f) => users.some((u) => u.userId === f))
-      );
-    });
-  }, [user]);
 
   useEffect(() => {
     const getConversations = async () => {
@@ -80,8 +68,9 @@ export default function Messenger() {
     const receiverId = currentChat.members.find(
       (member) => member !== user._id
     );
+    console.log(receiverId)
 
-    socket.current.emit("sendMessage", {
+    user.socket.emit("sendMessage", {
       senderId: user._id,
       receiverId,
       text: newMessage,

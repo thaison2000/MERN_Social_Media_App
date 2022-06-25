@@ -7,7 +7,7 @@ import { Context } from "../../context/Context";
 import axios from "axios";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
-export default function Topbar({socket}) {
+export default function Topbar() {
   const { user,dispatch } = useContext(Context);
   const [friendRequestAlert, setFriendRequestAlert] = useState(false);
   const [friendRequestUsers, setFriendRequestUsers] = useState([]);
@@ -16,10 +16,9 @@ export default function Topbar({socket}) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
 
-  console.log(notifications)
 
   useEffect(() => {
-    socket?.on("getNotification", (data) => {
+    user.socket?.on("getNotification", (data) => {
       setNotifications((prev) => [...prev, data].reduce((acc, current) => {
         const x = acc.find(item => item.timestamp === current.timestamp);
         if (!x) {
@@ -29,7 +28,7 @@ export default function Topbar({socket}) {
         }
       }, []));
     });
-  }, [socket]);
+  }, [user.socket]);
 
   const displayNotification = ({ senderId }) => {
     return (

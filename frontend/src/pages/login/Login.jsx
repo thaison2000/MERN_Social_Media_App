@@ -3,6 +3,8 @@ import "./Login.css";
 import { Context } from "../../context/Context";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
 export default function Login() {
 
@@ -10,14 +12,23 @@ export default function Login() {
 
     const email = useRef();
     const password = useRef();
-    const { dispatch } = useContext(Context);
+    const { dispatch } = useContext(Context); 
+    const [socket, setSocket] = useState(null);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      setSocket(io("http://localhost:8900"));
+    }, []);
 
     const handleClickLogin = async (e) => {
         e.preventDefault();
     
         try{
             const res = await axios.post("http://localhost:8800/api/auth/login",{ email: email.current.value, password: password.current.value });
-            dispatch({type: 'LOG_IN',payload: res.data});
+            const data = {...res.data,socket}
+            socket?.emit("addUser", res.data._id);
+            dispatch({type: 'LOG_IN',payload: data});
+            setUser(res.data)
             navigate('/')
         } 
         catch(err){

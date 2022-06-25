@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Comment = require("../models/Comment")
 
 //create a post
 router.post("/", async (req, res) => {
@@ -91,7 +92,23 @@ router.get("/timeline/:id", async (req, res) => {
     timelinePost = post.filter(function (item) {
       return timelinePost.includes(item) ? '' : timelinePost.push(item)
     })
-    res.status(200).json(timelinePost);
+
+    let value = []
+    for(let i=0;i<timelinePost.length;i++){
+      const comments = await Comment.find({ postId: timelinePost[i]._id });
+
+      value.push({
+        _id: timelinePost[i]._id,
+        userId: timelinePost[i].userId,
+        desc: timelinePost[i].desc,
+        likes: timelinePost[i].likes,
+        createdAt: timelinePost[i].createdAt,
+        updatedAt: timelinePost[i].updatedAt,
+        comments: comments
+      })
+    }
+
+    res.status(200).json(value);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -102,7 +119,23 @@ router.get("/profile/:username", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     const posts = await Post.find({ userId: user._id });
-    res.status(200).json(posts);
+
+    let value = []
+    for(let i=0;i<posts.length;i++){
+      const comments = await Comment.find({ postId: posts[i]._id });
+
+      value.push({
+        _id: posts[i]._id,
+        userId: posts[i].userId,
+        desc: posts[i].desc,
+        likes: posts[i].likes,
+        createdAt: posts[i].createdAt,
+        updatedAt: posts[i].updatedAt,
+        comments: comments
+      })
+    }
+
+    res.status(200).json(value);
   } catch (err) {
     res.status(500).json(err);
   }
