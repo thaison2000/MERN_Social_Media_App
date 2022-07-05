@@ -102,6 +102,7 @@ router.get("/timeline/:id", async (req, res) => {
         userId: timelinePost[i].userId,
         desc: timelinePost[i].desc,
         likes: timelinePost[i].likes,
+        img: timelinePost[i].img,
         createdAt: timelinePost[i].createdAt,
         updatedAt: timelinePost[i].updatedAt,
         comments: comments
@@ -129,6 +130,7 @@ router.get("/profile/:username", async (req, res) => {
         userId: posts[i].userId,
         desc: posts[i].desc,
         likes: posts[i].likes,
+        img: posts[i].img,
         createdAt: posts[i].createdAt,
         updatedAt: posts[i].updatedAt,
         comments: comments
