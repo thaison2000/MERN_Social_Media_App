@@ -104,10 +104,11 @@ router.get("/timeline/:id", async (req, res) => {
         likes: timelinePost[i].likes,
         createdAt: timelinePost[i].createdAt,
         updatedAt: timelinePost[i].updatedAt,
-        comments: comments
+        comments: comments,
+        img: timelinePost[i].img
       })
     }
-
+    console.log(value)
     res.status(200).json(value);
   } catch (err) {
     res.status(500).json(err);
@@ -131,10 +132,10 @@ router.get("/profile/:username", async (req, res) => {
         likes: posts[i].likes,
         createdAt: posts[i].createdAt,
         updatedAt: posts[i].updatedAt,
-        comments: comments
+        comments: comments,
+        img: posts[i].img
       })
     }
-
     res.status(200).json(value);
   } catch (err) {
     res.status(500).json(err);

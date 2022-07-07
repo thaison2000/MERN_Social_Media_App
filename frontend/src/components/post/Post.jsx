@@ -19,6 +19,7 @@ export default function Post({ post,socket }) {
   const { user: currentUser } = useContext(Context);
   const comment = useRef()
 
+
   useEffect(() => {
     setIsLiked(post.likes.includes(currentUser._id));
   }, []);
@@ -63,14 +64,14 @@ export default function Post({ post,socket }) {
     setLikes(isLiked ? likes - 1 : likes + 1);
     setIsLiked(!isLiked);
 
-    socket.current?.emit("sendNotification", {
-      senderName: currentUser.username,
-      senderId: currentUser._id,
-      receiverId: post.userId,
-      text: post.desc,
-      type:1
-    });
-
+    if(isLiked == false)
+      socket.current?.emit("sendNotification", {
+        senderName: currentUser.username,
+        senderId: currentUser._id,
+        receiverId: post.userId,
+        text: post.desc,
+        type:1
+      });
   };
 
   //xu ly khi comment bai dang
@@ -80,6 +81,14 @@ export default function Post({ post,socket }) {
       const res = await axios.post("http://localhost:3002/api/comment", newComment);
       setComments([res.data,...comments])
       setCommentUsers([...commentusers,currentUser])
+
+      socket.current?.emit("sendNotification", {
+        senderName: currentUser.username,
+        senderId: currentUser._id,
+        receiverId: post.userId,
+        text: post.desc,
+        type:2
+      });
     } catch (err) {
       console.log(err)
     }
@@ -152,7 +161,7 @@ export default function Post({ post,socket }) {
                 className="postProfileImg"
                 src={
                   user.avatar
-                    ? 'http://localhost:3001/user/images/' + user.avatar
+                    ? ('http://localhost:3001/user/images/' + user.avatar)
                     : 'http://localhost:3001/user/images/person/noAvatar.png'
                 }
                 alt=""
@@ -167,7 +176,7 @@ export default function Post({ post,socket }) {
         </div>
         <div className="postCenter">
           <span className="postText">{post?.desc}</span>
-          <img className="postImg" src={post.img? 'http://localhost:3001/post/images/' + post.img: null} alt="" />
+          <img className="postImg" src={post?.img? ('http://localhost:3002/post/images/' + post.img): null} alt="" />
         </div>
         <div className="postBottom">
           <div className="postBottomLeft">

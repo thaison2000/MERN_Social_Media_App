@@ -13,11 +13,11 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import WallpaperIcon from '@mui/icons-material/Wallpaper';
 
-export default function Rightbar({ user }) {
+export default function Rightbar({ user,updateProfile }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   const [followings, setFollowings] = useState([]);
   const [friends, setFriends] = useState([]);
-  const [isFriend, setIsFriend] = useState([]);
+  const [isFriend, setIsFriend] = useState(false);
   const { user: currentUser, dispatch } = useContext(Context);
   const [profileUpdate, setProfileUpdate] = useState(false);
   const [followed, setFollowed] = useState(false);
@@ -128,9 +128,9 @@ export default function Rightbar({ user }) {
     try {
       
         await axios.put(`http://localhost:3001/api/user/` + user._id + '/unfriend', {userId: currentUser._id,});
-        await axios.delete(`http://localhost:3001/api/conversation/` + currentUser._id + '/' +  user._id);
+        await axios.delete(`http://localhost:3003/api/conversation/` + currentUser._id + '/' +  user._id);
         dispatch({ type: "UNFRIEND", payload: user._id });
-        setIsFriend(!isFriend)
+        setIsFriend(false)
     } catch (err) {
     }
   };
@@ -151,7 +151,11 @@ export default function Rightbar({ user }) {
           city: currentUser.city, 
           from: currentUser.from,
           avatar: currentUser.avatar,
-          background: currentUser.background
+          background: currentUser.background,
+          username: currentUser.username,
+          followed: currentUser.followed,
+          followings: currentUser.following,
+          friends: currentUser.friends
         }
         if(city.current.value){
           updateUser.city = city.current.value
@@ -181,7 +185,9 @@ export default function Rightbar({ user }) {
         }
         const res = await axios.put("http://localhost:3001/api/user/"+ currentUser._id,updateUser);
         dispatch({type: 'UPDATE_PROFILE',payload: res.data});
-        window.location.reload();
+        updateProfile(updateUser)
+        setProfileUpdate((prevState)=>{
+          return !prevState})
     }catch (err) {
       console.log(err)
     }
