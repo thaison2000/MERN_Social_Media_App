@@ -42,7 +42,7 @@ router.get("/:sendUserId/:receiveUserId", async (req, res) => {
 router.get("/:receiveUserId", async (req, res) => {
   try {
     const Requests = await FriendRequest.find({
-        reciverUserId: req.params.sendUserId
+        receiveUserId: req.params.receiveUserId
     });
     res.status(200).json(Requests);
   } catch (err) {
@@ -55,7 +55,7 @@ router.get("/user/list/:receiveUserId", async (req, res) => {
   try {
     const userList = []
     const Requests = await FriendRequest.find({
-        reciverUserId: req.params.sendUserId
+        receiveUserId: req.params.receiveUserId
     });
     for(let i =0;i<Requests.length;i++){
         const user = await User.findById(Requests[i].sendUserId)

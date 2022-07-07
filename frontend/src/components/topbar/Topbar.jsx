@@ -23,7 +23,7 @@ export default function Topbar({socket}) {
   useEffect(() => {
         const getFriendRequestUsers = async () => {
           try {             
-            const userList = await axios.get("http://localhost:3001/api/friendRequest/user/list/" + user?._id);
+            const userList = await axios.get("http://localhost:3001/api/friendRequest/user/list/" + user._id);
             setFriendRequestUsers(userList.data);
           } catch (err) {
             console.log(err);

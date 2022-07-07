@@ -29,10 +29,6 @@ export default function Profile() {
     fetchUser();
   }, [username]);
 
-  const updateProfile = (data) =>{
-    setUser(data)
-  }
-
   return (
     <>
       <Topbar socket={socket}/>
@@ -68,7 +64,7 @@ export default function Profile() {
           </div>
           <div className="profileRightBottom">
             <Feed username={username} socket={socket}/>
-            <Rightbar user={user} updateProfile={updateProfile}/>
+            <Rightbar user={user}/>
           </div>
         </div>
       </div>:null}
