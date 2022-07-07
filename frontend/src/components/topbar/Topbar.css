@@ -1,0 +1,205 @@
+.topbarContainer {
+    height: 50px;
+    width: 100%;
+    background-color: rgb(240, 193, 128);
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+  
+  .topbarLeft {
+    flex: 3;
+  }
+  
+  .logo {
+    font-size: 24px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .topbarCenter {
+    flex: 5.5;
+  }
+  
+  .searchbar {
+    width: 100%;
+    height: 30px;
+    background-color: white;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchIcon {
+    font-size: 20px !important;
+    margin-left: 10px;
+  }
+  
+  .searchInput {
+    border: none;
+    width: 50%;
+  }
+  
+  .searchInput:focus {
+    outline: none;
+  }
+  
+  .topbarRight {
+    flex: 3.5;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    color: white;
+  }
+  
+  .topbarIconItem {
+    margin-right: 15px;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .topbarIconBadge {
+    width: 15px;
+    height: 15px;
+    background-color: red;
+    border-radius: 50%;
+    color: white;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  
+  .topbarImg {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+  }
+
+ .topbarRightLogout{
+     cursor: pointer;
+     padding-right: 10px;
+     padding-left: 20px;
+     font-size: 22px;
+ }
+
+ .topbarRightFriendRequestAlert{
+   display: flex;
+   align-items: center;
+   justify-content: left;
+ }
+
+ .topbarRightFriendRequestAlertIconBadge{
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  color: white;
+  position: relative;
+  top: -8px;
+  left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+ }
+
+ .topbarRightFriendRequestAlert{
+  margin-right: 15px;
+  cursor: pointer;
+  position: relative;
+ }
+
+ .friendRequestAlert{
+  width: 30%;
+  height: 500px;
+  position: fixed;
+  top: 30px;
+  right: 200px;
+  z-index: 1;
+  background-color: rgb(236, 219, 219);
+  border-radius: 10px;
+}
+
+.friendRequestAlertItem{
+  background-color: white;
+  margin:20px;
+  padding: 10px;
+}
+
+.friendRequestAlertItemDesc{
+  color: gray;
+}
+
+.friendRequestAlertItemButtons{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friendRequestAlertItemButton{
+    margin: 10px;
+    width: 120px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    color: white;
+    background-color: rgb(194, 31, 169);
+}
+
+.notificationAlert{
+  width: 30%;
+  height: 500px;
+  position: fixed;
+  top: 30px;
+  right: 200px;
+  z-index: 1;
+  background-color: rgb(236, 219, 219);
+  border-radius: 10px;
+}
+
+.notificationAlertItem{
+  background-color: white;
+  margin:20px;
+  padding: 10px;
+}
+
+.notificationAlertItemDesc{
+  color: gray;
+}
+
+.topbarRightNotificationAlert{
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+.topbarRightNotificationAlertIconBadge{
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  color: white;
+  position: relative;
+  top: -8px;
+  left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+ }
+ 
+ .notificationDate{
+  font-size: 12px;
+  color: black;
+}
