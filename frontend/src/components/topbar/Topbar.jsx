@@ -6,47 +6,24 @@ import { useContext,useRef,useState,useEffect } from "react";
 import { Context } from "../../context/Context";
 import axios from "axios";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { format } from "timeago.js";
 
-export default function Topbar() {
+export default function Topbar({socket}) {
   const { user,dispatch } = useContext(Context);
   const [friendRequestAlert, setFriendRequestAlert] = useState(false);
   const [friendRequestUsers, setFriendRequestUsers] = useState([]);
-  const  usernameSearch = useRef();
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+  const [notificationAlert, setNotificationAlert] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [open, setOpen] = useState(false);
-
-
-  useEffect(() => {
-    user.socket?.on("getNotification", (data) => {
-      setNotifications((prev) => [...prev, data].reduce((acc, current) => {
-        const x = acc.find(item => item.timestamp === current.timestamp);
-        if (!x) {
-          return acc.concat([current]);
-        } else {
-          return acc;
-        }
-      }, []));
-    });
-  }, [user.socket]);
-
-  const displayNotification = ({ senderId }) => {
-    return (
-      <span className="notification">{`${senderId} like your post.`}</span>
-    );
-  };
-
-  const handleRead = () => {
-    setNotifications([]);
-    setOpen(false);
-  };
+  const [newNotification, setNewNotification] = useState();
+  const  usernameSearch = useRef();
 
   let navigate = useNavigate()
 
   useEffect(() => {
         const getFriendRequestUsers = async () => {
           try {             
-            const userList = await axios.get("http://localhost:8800/api/friendRequest/user/list/" + user?._id);
+            const userList = await axios.get("http://localhost:3001/api/friendRequest/user/list/" + user?._id);
             setFriendRequestUsers(userList.data);
           } catch (err) {
             console.log(err);
@@ -58,18 +35,35 @@ export default function Topbar() {
         }
     
       }, [user]);
+
+  useEffect(() => {
+        socket.current?.on("getNotification", (data) => {
+          console.log(data)
+          setNewNotification({
+            senderName: data.senderName,
+            type: data.type,
+            text: data.text,
+            timestamp: data.timestamp
+          })
+        });
+      }, [socket.current]);
+
+  useEffect(() => {
+        newNotification &&
+          setNotifications((prev) => [...prev, newNotification]);
+      }, [newNotification]);
     
 
     const handleClickAcceptAddFriend = async (deletefriendRequestUser) => {
         try {
-            await axios.put(`http://localhost:8800/api/user/` + user._id +'/addfriend', {userId: deletefriendRequestUser._id,});
-            await axios.delete(`http://localhost:8800/api/friendRequest`, {
+            await axios.put(`http://localhost:3001/api/user/` + user._id +'/addfriend', {userId: deletefriendRequestUser._id,});
+            await axios.delete(`http://localhost:3001/api/friendRequest`, {
               data: {
                 sendUserId: deletefriendRequestUser._id,
                 receiveUserId: user._id
               }
             });
-            await axios.post(`http://localhost:8800/api/conversation/`, {firstUserId: deletefriendRequestUser._id,secondUserId: user._id});
+            await axios.post(`http://localhost:3003/api/conversation/`, {firstUserId: deletefriendRequestUser._id,secondUserId: user._id});
           setFriendRequestUsers(friendRequestUsers.filter((friendRequestUser)=>{
             return friendRequestUser != deletefriendRequestUser
           }))
@@ -80,7 +74,7 @@ export default function Topbar() {
 
     const handleClickRejectAddFriend = async (deletefriendRequestUser) => {
         try {
-            await axios.delete(`http://localhost:8800/api/friendRequest`, {
+            await axios.delete(`http://localhost:3001/api/friendRequest`, {
               data: {
                 sendUserId: deletefriendRequestUser._id,
                 receiveUserId: user._id
@@ -97,6 +91,10 @@ export default function Topbar() {
     setFriendRequestAlert(!friendRequestAlert)
   }
 
+  const handleClickNotificationAlert = ()=>{
+    setNotificationAlert(!notificationAlert)
+  }
+
 
   const handleClickLogout = (e)=>{
     dispatch({ type: "LOG_OUT" });
@@ -105,7 +103,7 @@ export default function Topbar() {
 
   const handleClickSearch = async (e)=>{
     try{
-      const res = await axios.get(`http://localhost:8800/api/user?username=${usernameSearch.current.value}`);
+      const res = await axios.get(`http://localhost:3001/api/user?username=${usernameSearch.current.value}`);
       navigate(`/profile/${usernameSearch.current.value}`)
     }
     catch(err){
@@ -136,6 +134,30 @@ export default function Topbar() {
     )
   }
 
+
+  const NotificationAlertContainer = () => {
+    return (
+      <div className='notificationAlert'>
+            {notifications.map((notification)=> {
+              console.log('gg')
+              let action;
+
+              if (notification.type === 1) {
+                action = "liked";
+              } 
+              else{
+                action = "commented";
+              }
+              return (
+              <div className="notificationAlertItem">
+              <span className="notificationAlertItemDesc">{`${notification.senderName} ${action} your post:  "${notification.text.substring(0,50)}..."`}</span>
+              <div className="notificationDate">{format(notification.timestamp)}</div>
+              </div>
+            )} )}
+      </div>
+    )
+  }
+
   return (
     <div className="topbarContainer">
       <div className="topbarLeft">
@@ -154,23 +176,11 @@ export default function Topbar() {
         </div>
       </div>
       <div className="topbarRight">
-      <div className="icons">
-      <div className="icon" onClick={() => setOpen(!open)}>
-          <GroupAddIcon/>
-          {
-            notifications.length >0 &&
-            <div className="counter">{notifications.length}</div>
-          }
-        </div>
-      </div>
-      {open && (
-        <div className="notifications">
-          {notifications.map((n) => displayNotification(n))}
-          <button className="nButton" onClick={handleRead}>
-            Mark as read
-          </button>
-        </div>
-      )}
+          <div className="topbarRightNotificationAlert" onClick={handleClickNotificationAlert}>
+            <NotificationsIcon/>
+            <span className="topbarRightNotificationAlertIconBadge">{notifications.length}</span>
+            {notificationAlert ? <NotificationAlertContainer/>: null}
+          </div>
           <div className="topbarRightFriendRequestAlert" onClick={handleClickFriendRequestAlert}>
             <GroupAddIcon/>
             <span className="topbarRightFriendRequestAlertIconBadge">{friendRequestUsers.length}</span>
@@ -180,8 +190,8 @@ export default function Topbar() {
           <img
             src={
               user.avatar
-                ? PF + user.avatar
-                : PF + "person/noAvatar.png"
+                ? 'http://localhost:3001/user/images/' + user.avatar
+                : 'http://localhost:3001/user/images/person/noAvatar.png'
             }
             alt=""
             className="topbarImg"

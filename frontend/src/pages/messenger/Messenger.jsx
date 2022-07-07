@@ -6,6 +6,7 @@ import ChatOnline from "../../components/chatOnline/ChatOnline";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Context } from "../../context/Context";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 export default function Messenger() {
   const [conversations, setConversations] = useState([]);
@@ -14,11 +15,14 @@ export default function Messenger() {
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const socket = useRef();
   const { user } = useContext(Context);
   const scrollRef = useRef();
 
   useEffect(() => {
-    user.socket.on("getMessage", (data) => {
+    socket.current = io("http://localhost:3004");
+    socket.current.on("getMessage", (data) => {
+      console.log(data)
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -34,9 +38,18 @@ export default function Messenger() {
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
+    socket.current.emit("addUser", user._id);
+    socket.current.on("getUsers", (users) => {
+      setOnlineUsers(
+        user.followings.filter((f) => users.some((u) => u.userId === f))
+      );
+    });
+  }, [user]);
+
+  useEffect(() => {
     const getConversations = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/conversation/" + user._id);
+        const res = await axios.get("http://localhost:3003/api/conversation/" + user._id);
         setConversations(res.data);
       } catch (err) {
         console.log(err);
@@ -48,7 +61,7 @@ export default function Messenger() {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/message/" + currentChat?._id);
+        const res = await axios.get("http://localhost:3003/api/message/" + currentChat?._id);
         setMessages(res.data);
       } catch (err) {
         console.log(err);
@@ -68,16 +81,15 @@ export default function Messenger() {
     const receiverId = currentChat.members.find(
       (member) => member !== user._id
     );
-    console.log(receiverId)
 
-    user.socket.emit("sendMessage", {
+    socket.current.emit("sendMessage", {
       senderId: user._id,
       receiverId,
       text: newMessage,
     });
 
     try {
-      const res = await axios.post("http://localhost:8800/api/message", message);
+      const res = await axios.post("http://localhost:3003/api/message", message);
       setMessages([...messages, res.data]);
       setNewMessage("");
     } catch (err) {
@@ -91,7 +103,7 @@ export default function Messenger() {
 
   return (
     <>
-      <Topbar />
+      <Topbar socket={socket}/>
       <div className="messenger">
         <div className="chatMenu">
           <div className="chatMenuWrapper">

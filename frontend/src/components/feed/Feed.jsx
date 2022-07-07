@@ -5,7 +5,7 @@ import "./Feed.css";
 import axios from "axios";
 import { Context } from "../../context/Context";
 
-export default function Feed({ username,socket }) {
+export default function Feed({ socket,username }) {
   const [posts, setPosts] = useState([]);
   const { user } = useContext(Context);
 
@@ -13,8 +13,8 @@ export default function Feed({ username,socket }) {
   useEffect(() => {
     const fetchPosts = async () => {
       const res = username
-        ? await axios.get("http://localhost:8800/api/post/profile/" + username)
-        : await axios.get("http://localhost:8800/api/post/timeline/" + user._id);
+        ? await axios.get("http://localhost:3002/api/post/profile/" + username)
+        : await axios.get("http://localhost:3002/api/post/timeline/" + user._id);
       setPosts(
         res.data.sort((p1, p2) => {
           return new Date(p2.createdAt) - new Date(p1.createdAt);
@@ -28,9 +28,9 @@ export default function Feed({ username,socket }) {
     <div className="feed">
       <div className="feedWrapper">
         {(!username || username === user.username) && <Share />}
-        {posts.map((p) => {
+        {posts.map((post) => {
           return (
-          <Post key={p._id} post={p} socket={socket} />
+          <Post key={post._id} post={post} socket={socket} />
         )})}
       </div>
     </div>

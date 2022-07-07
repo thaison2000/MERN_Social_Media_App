@@ -5,11 +5,10 @@ import "./ChatOnline.css";
 export default function ChatOnline({ onlineUsers, currentId, setCurrentChat }) {
   const [friends, setFriends] = useState([]);
   const [onlineFriends, setOnlineFriends] = useState([]);
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
   useEffect(() => {
     const getFriends = async () => {
-      const res = await axios.get("http://localhost:8800/api/user/friends/" + currentId);
+      const res = await axios.get("http://localhost:3001/api/user/friends/" + currentId);
       setFriends(res.data);
     };
 
@@ -23,7 +22,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat }) {
   const handleClick = async (user) => {
     try {
       const res = await axios.get(
-        `http://localhost:8800/api/conversation/find/${currentId}/${user._id}`
+        `http://localhost:3003/api/conversation/find/${currentId}/${user._id}`
       );
       setCurrentChat(res.data);
     } catch (err) {
@@ -40,8 +39,8 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat }) {
               className="chatOnlineImg"
               src={
                 o?.profilePicture
-                  ? PF + o.profilePicture
-                  : PF + "person/noAvatar.png"
+                  ? 'http://localhost:3001/user/images/' + o.profilePicture
+                  : 'http://localhost:3001/user/images/person/noAvatar.png'
               }
               alt=""
             />

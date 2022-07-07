@@ -35,7 +35,7 @@ export default function Rightbar({ user }) {
   useEffect(() => {
     const getFollowings = async () => {
       try {
-        const followingList = await axios.get("http://localhost:8800/api/user/followings/" + user?._id);
+        const followingList = await axios.get("http://localhost:3001/api/user/followings/" + user?._id);
         setFollowings(followingList.data);
       } catch (err) {
         console.log(err);
@@ -55,7 +55,7 @@ export default function Rightbar({ user }) {
   useEffect(() => {
     const getFriends = async () => {
       try {
-        const friendList = await axios.get("http://localhost:8800/api/user/friends/" + user?._id);
+        const friendList = await axios.get("http://localhost:3001/api/user/friends/" + user?._id);
         setFriends(friendList.data);
       } catch (err) {
         console.log(err);
@@ -71,7 +71,7 @@ export default function Rightbar({ user }) {
   useEffect(() => {
     const getFriendRequest = async () => {
       try {
-        const friendRequest = await axios.get("http://localhost:8800/api/friendRequest/" + currentUser._id + "/" + user?._id);
+        const friendRequest = await axios.get("http://localhost:3001/api/friendRequest/" + currentUser._id + "/" + user?._id);
         if(friendRequest.data){
           setAddFriend(true)
         }
@@ -89,12 +89,12 @@ export default function Rightbar({ user }) {
   const handleClickFollowOrUnfollow = async () => {
     try {
       if (followed) {
-        await axios.put(`http://localhost:8800/api/user/${user._id}/unfollow`, {
+        await axios.put(`http://localhost:3001/api/user/${user._id}/unfollow`, {
           userId: currentUser._id,
         });
         dispatch({ type: "UNFOLLOW", payload: user._id });
       } else {
-        await axios.put(`http://localhost:8800/api/user/${user._id}/follow`, {
+        await axios.put(`http://localhost:3001/api/user/${user._id}/follow`, {
           userId: currentUser._id,
         });
         dispatch({ type: "FOLLOW", payload: user._id });
@@ -107,14 +107,14 @@ export default function Rightbar({ user }) {
   const handleClickAddFriend = async () => {
     try {
       if (addFriend) {
-        await axios.delete(`http://localhost:8800/api/friendRequest/`, {
+        await axios.delete(`http://localhost:3001/api/friendRequest/`, {
           data: {
             sendUserId: currentUser._id,
             receiveUserId: user._id
           }
         });
       } else {
-        await axios.post(`http://localhost:8800/api/friendRequest/`, {
+        await axios.post(`http://localhost:3001/api/friendRequest/`, {
           sendUserId: currentUser._id,
           receiveUserId: user._id
         });
@@ -127,8 +127,8 @@ export default function Rightbar({ user }) {
   const handleClickUnFriend = async () => {
     try {
       
-        await axios.put(`http://localhost:8800/api/user/` + user._id + '/unfriend', {userId: currentUser._id,});
-        await axios.delete(`http://localhost:8800/api/conversation/` + currentUser._id + '/' +  user._id);
+        await axios.put(`http://localhost:3001/api/user/` + user._id + '/unfriend', {userId: currentUser._id,});
+        await axios.delete(`http://localhost:3001/api/conversation/` + currentUser._id + '/' +  user._id);
         dispatch({ type: "UNFRIEND", payload: user._id });
         setIsFriend(!isFriend)
     } catch (err) {
@@ -166,7 +166,7 @@ export default function Rightbar({ user }) {
           data.append("name", fileName);
           data.append("file", avatar);
           try {
-            await axios.post("http://localhost:8800/api/upload", data);
+            await axios.post("http://localhost:3001/api/upload", data);
           } catch (err) {}
         }
         if (background) {
@@ -176,10 +176,10 @@ export default function Rightbar({ user }) {
           data.append("name", fileName);
           data.append("file", background);
           try {
-            await axios.post("http://localhost:8800/api/upload", data);
+            await axios.post("http://localhost:3001/api/upload", data);
           } catch (err) {}
         }
-        const res = await axios.put("http://localhost:8800/api/user/"+ currentUser._id,updateUser);
+        const res = await axios.put("http://localhost:3001/api/user/"+ currentUser._id,updateUser);
         dispatch({type: 'UPDATE_PROFILE',payload: res.data});
         window.location.reload();
     }catch (err) {
@@ -253,7 +253,7 @@ export default function Rightbar({ user }) {
             <b>Connect</b> friend all around the world on <b>ThaiSonSocial</b>
           </span>
         </div>
-        <img className="rightbarAd" src= {PF + "layout/ConnectFriend.jpg"} alt="" />
+        <img className="rightbarAd" src= {'http://localhost:3001/user/images/layout/ConnectFriend.jpg'} alt="" />
       </>
     );
   };
@@ -305,8 +305,8 @@ export default function Rightbar({ user }) {
                 <img
                   src={
                     following.avatar
-                      ? PF + following.avatar
-                      : PF + "person/noAvatar.png"
+                      ? 'http://localhost:3001/user/images/' + following.avatar
+                      : 'http://localhost:3001/user/images/person/noAvatar.png'
                   }
                   alt=""
                   className="rightbarFollowingImg"
@@ -328,8 +328,8 @@ export default function Rightbar({ user }) {
                 <img
                   src={
                     friend.avatar
-                      ? PF + friend.avatar
-                      : PF + "person/noAvatar.png"
+                      ? 'http://localhost:3001/user/images/' + friend.avatar
+                      : 'http://localhost:3001/user/images/person/noAvatar.png'
                   }
                   alt=""
                   className="rightbarFollowingImg"

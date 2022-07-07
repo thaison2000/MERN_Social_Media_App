@@ -8,13 +8,12 @@ import axios from "axios";
 import { useParams } from "react-router";
 
 export default function Profile() {
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   const [user, setUser] = useState();
   const username = useParams().username;
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await axios.get(`http://localhost:8800/api/user?username=${username}`);
+      const res = await axios.get(`http://localhost:3001/api/user?username=${username}`);
       setUser(res.data);
     };
     fetchUser();
@@ -33,8 +32,8 @@ export default function Profile() {
                 className="profileCoverImg"
                 src={
                   user.background
-                    ? PF + user.background
-                    : PF + "person/noCover.png"
+                    ? 'http://localhost:3001/user/images/' + user.background
+                    : 'http://localhost:3001/user/images/person/noCover.png'
                 }
                 alt=""
               />
@@ -42,8 +41,8 @@ export default function Profile() {
                 className="profileUserImg"
                 src={
                   user.avatar
-                    ? PF + user.avatar
-                    : PF + "person/noAvatar.png"
+                    ? 'http://localhost:3001/user/images/' + user.avatar
+                    : 'http://localhost:3001/user/images/person/noAvatar.png'
                 }
                 alt=""
               />

@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+
+ chat-service:
+  image: chat-service
+  container_name: chat-service-container
+  build: ./backend/chat_service
+  ports:
+   - 3003:3003
+  
+  command: npm start
+
+ post-service:
+  image: post-service
+  container_name: post-service-container
+  build: ./backend/post_service
+  ports:
+   - 3002:3002
+  
+  command: npm start
+
+ user-service:
+  image: user-service
+  container_name: user-service-container
+  build: ./backend/user_service
+  ports:
+   - 3001:3001
+  
+  command: npm start
+
+ socket-service:
+  image: socket-service
+  container_name: socket-service-container
+  build: ./backend/socket_service
+  ports:
+   - 3004:3004
+  
+  command: npm start
+
+ frontend: 
+  image: frontend
+  container_name: frontend-container
+  build: ./frontend
+  ports:
+   - 3000:3000
+ 
+  command: npm start
+
+
+
+
+

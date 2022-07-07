@@ -23,7 +23,7 @@ export default function Register() {
         password: password.current.value,
       };
       try {
-        await axios.post("http://localhost:8800/api/auth/register", user);
+        await axios.post("http://localhost:3001/api/auth/register", user);
         navigate('/')
       } catch (err) {
         console.log(err);

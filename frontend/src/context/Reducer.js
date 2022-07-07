@@ -10,6 +10,7 @@ const Reducer = (state, action) => {
         }
     case "FOLLOW":
         return {
+          ...state,
           user: {
             ...state.user,
             followings: [...state.user.followings, action.payload],
@@ -17,6 +18,7 @@ const Reducer = (state, action) => {
         };
     case "UNFOLLOW":
         return {
+          ...state,
           user: {
             ...state.user,
             followings: state.user.followings.filter(
@@ -26,6 +28,7 @@ const Reducer = (state, action) => {
         };
     case "ADDFRIEND":
       return {
+        ...state,
         user: {
           ...state.user,
           friends: [...state.user.friends, action.payload],
@@ -33,6 +36,7 @@ const Reducer = (state, action) => {
       };   
     case "UNFRIEND":
       return {
+        ...state,
         user: {
           ...state.user,
           friends: state.user.friends.filter(
@@ -42,6 +46,7 @@ const Reducer = (state, action) => {
       }; 
     case "UPDATE_PROFILE":
         return {
+          ...state,
           user: {
             ...state.user,
             city: action.payload.city,

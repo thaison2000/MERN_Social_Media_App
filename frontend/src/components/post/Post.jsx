@@ -8,8 +8,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
-export default function Post({ post }) {
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+export default function Post({ post,socket }) {
   const [currentPost, setCurrentPost] = useState(post);
   const [likes, setLikes] = useState(post.likes.length);
   const [comments, setComments] = useState([]);
@@ -27,7 +26,7 @@ export default function Post({ post }) {
   //lay thong tin nguoi dang bai
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await axios.get(`http://localhost:8800/api/user?userId=${post.userId}`);
+      const res = await axios.get(`http://localhost:3001/api/user?userId=${post.userId}`);
       setUser(res.data);
     };
     fetchUser();
@@ -36,7 +35,7 @@ export default function Post({ post }) {
   //lay cac comment thuoc bai dang
   useEffect(() => {
     const fetchComments = async () => {
-      const res = await axios.get("http://localhost:8800/api/comment/" + post._id);
+      const res = await axios.get("http://localhost:3002/api/comment/" + post._id);
       const commentsSort = res.data.comments.sort((p1, p2) => {
         return new Date(p2.createdAt) - new Date(p1.createdAt);
       })
@@ -49,34 +48,36 @@ export default function Post({ post }) {
   //xu ly xoa bai dang
   const handlePostDelete = async () =>{
     try {
-      await axios.delete("http://localhost:8800/api/post/"+ post._id, { data: {userId: currentUser._id} });
+      await axios.delete("http://localhost:3002/api/post/"+ post._id, { data: {userId: currentUser._id} });
       setCurrentPost(null)
     } catch (err) {
       console.log(err)
     }
   }
 
-
   //xu ly khi like bai dang
   const handleClickLike = () => {
     try {
-      axios.put("http://localhost:8800/api/post/" + post._id + "/like", { userId: currentUser._id });
+      axios.put("http://localhost:3002/api/post/" + post._id + "/like", { userId: currentUser._id });
     } catch (err) {}
     setLikes(isLiked ? likes - 1 : likes + 1);
     setIsLiked(!isLiked);
-    if(!isLiked && currentUser._id !== post.userId){
-      currentUser.socket.emit("sendNotification", {
-        senderId: currentUser._id,
-        receiverId: post.userId,
-      });
-    }
+
+    socket.current?.emit("sendNotification", {
+      senderName: currentUser.username,
+      senderId: currentUser._id,
+      receiverId: post.userId,
+      text: post.desc,
+      type:1
+    });
+
   };
 
   //xu ly khi comment bai dang
   const handleCommmentSubmit = async () =>{
     try {
       const newComment = { userId: currentUser._id ,postId: post._id,desc: comment.current.value}
-      const res = await axios.post("http://localhost:8800/api/comment", newComment);
+      const res = await axios.post("http://localhost:3002/api/comment", newComment);
       setComments([res.data,...comments])
       setCommentUsers([...commentusers,currentUser])
     } catch (err) {
@@ -87,7 +88,7 @@ export default function Post({ post }) {
   //xu ly khi xoa comment
   const handleCommmentDelete = async (deleteComment) =>{
     try {
-      await axios.delete("http://localhost:8800/api/comment/"+ deleteComment._id,{data: {userId: currentUser._id}});
+      await axios.delete("http://localhost:3002/api/comment/"+ deleteComment._id,{data: {userId: currentUser._id}});
       setComments(comments.filter((comment)=>{
         return comment != deleteComment
       }))
@@ -118,8 +119,8 @@ export default function Post({ post }) {
                 <img 
                   src={
                     user.avatar
-                      ? PF + user.avatar
-                      : PF + "person/noAvatar.png"
+                      ? 'http://localhost:3001/user/images/' + user.avatar
+                      : 'http://localhost:3001/user/images/person/noAvatar.png'
                   }
                   alt=""
                   className="userCommentImg"
@@ -151,8 +152,8 @@ export default function Post({ post }) {
                 className="postProfileImg"
                 src={
                   user.avatar
-                    ? PF + user.avatar
-                    : PF + "person/noAvatar.png"
+                    ? 'http://localhost:3001/user/images/' + user.avatar
+                    : 'http://localhost:3001/user/images/person/noAvatar.png'
                 }
                 alt=""
               />
@@ -166,7 +167,7 @@ export default function Post({ post }) {
         </div>
         <div className="postCenter">
           <span className="postText">{post?.desc}</span>
-          <img className="postImg" src={post.img? PF + post.img: null} alt="" />
+          <img className="postImg" src={post.img? 'http://localhost:3001/post/images/' + post.img: null} alt="" />
         </div>
         <div className="postBottom">
           <div className="postBottomLeft">

@@ -6,13 +6,12 @@ import axios from "axios";
 
 export default function Message({ message, own }) {
   const [user, setUser] = useState();
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
   useEffect(() => {
 
     const getUser = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/user?userId=" + message.sender);
+        const res = await axios.get("http://localhost:3001/api/user?userId=" + message.sender);
         setUser(res.data);
       } catch (err) {
         console.log(err);
@@ -28,8 +27,8 @@ export default function Message({ message, own }) {
         <img
           className="messageImg"
           src={user.avatar
-            ? PF + user.avatar
-            : PF + "person/noAvatar.png"}
+            ? 'http://localhost:3001/user/images/' + user.avatar
+            : 'http://localhost:3001/user/images/person/noAvatar.png'}
           alt="" />
         <p className="messageText">{message.text}</p>
       </div><div className="messageBottom">{format(message.createdAt)}</div></>: null}
