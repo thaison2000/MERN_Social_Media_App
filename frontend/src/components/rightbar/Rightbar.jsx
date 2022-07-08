@@ -24,7 +24,6 @@ export default function Rightbar({ user,socket }) {
   const [addFriend, setAddFriend] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [background, setBackground] = useState(null);
-  const [friendRequestResult, setFriendRequestResult] = useState({});
   const city = useRef()
   const from = useRef()
 
@@ -73,8 +72,6 @@ export default function Rightbar({ user,socket }) {
     const getFriendRequest = async () => {
       try {
         const friendRequestNotification = await axios.get("http://localhost:3001/api/notification/" + currentUser._id + "/" + user._id + "/" + "4");
-        console.log(user._id)
-        console.log(friendRequestNotification.data)
         if(friendRequestNotification.data){
           setAddFriend(true)
         }
@@ -88,39 +85,6 @@ export default function Rightbar({ user,socket }) {
     }
 
   }, [user]);
-
-  useEffect(() => {
-    socket.current?.on("getNotification", (data) => {
-      if(data.type == 5){
-        setFriendRequestResult({
-          status: true,
-          sendUserId: data.sendUserId
-        })
-      }
-      if(data.type == 6){
-        setFriendRequestResult({
-          status: false,
-          sendUserId: data.sendUserId
-        })
-      }
-      if(data.type == 7){
-        setFriendRequestResult({
-          status: false,
-          sendUserId: data.sendUserId
-        })
-      }
-    });
-  }, [socket.current]);
-
-  useEffect(() => {
-    setIsFriend(friendRequestResult)
-    if(friendRequestResult.status == true){
-      dispatch({ type: "ADDFRIEND", payload: friendRequestResult.sendUserId })
-    }
-    else{
-      dispatch({ type: "UNFRIEND", payload: friendRequestResult.sendUserId })
-    }
-  }, [friendRequestResult.status]);
 
   const handleClickFollowOrUnfollow = async () => {
     try {

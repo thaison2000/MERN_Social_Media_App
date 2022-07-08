@@ -53,7 +53,7 @@ app.get('/', (req, res) => res.send('Hello Gateway API'));
 
 app.use('/api/auth', userProxy);
 app.use('/api/user', userProxy);
-app.use('/api/friendRequest', userProxy);
+app.use('/api/notification', userProxy);
 
 app.use('/api/post', postProxy);
 app.use('/api/comment', postProxy);

@@ -140,17 +140,19 @@
   width: 30%;
   height: 500px;
   position: fixed;
-  padding: 10px;
   top: 8px;
   right: 200px;
   z-index: 1;
   background-color: rgb(240, 193, 128);
   overflow-y: scroll;
+  border-radius: 10px;
 }
 
 .notificationAlertItem{
   background-color: white;
+  margin: 10px;
   padding: 10px;
+  border-radius: 10px;
 }
 
 .notificationAlertItemDesc{

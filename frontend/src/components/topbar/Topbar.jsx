@@ -15,6 +15,7 @@ export default function Topbar({socket}) {
   const [countNewNotifications, setCountNewNotifications] = useState(-1);
   const [newNotification, setNewNotification] = useState();
   const [deletedfriendRequestNotification, setDeletedFriendRequestNotification] = useState();
+  const [friendUpdate, setFriendUpdate] = useState({});
   const  usernameSearch = useRef();
   const scrollRef = useRef()
 
@@ -58,6 +59,15 @@ export default function Topbar({socket}) {
     
 
   useEffect(() => {
+        if(friendUpdate.type == 'addfriend'){
+          dispatch({ type: "ADDFRIEND", payload: friendUpdate.sendUserId });
+        }
+        else{
+          dispatch({ type: "UNFRIEND", payload: friendUpdate.sendUserId });
+        }
+      }, [friendUpdate]);
+
+  useEffect(() => {
         deletedfriendRequestNotification &&
           setNotifications(notifications.filter((notification)=>{
             let deletedValue = {...deletedfriendRequestNotification,type:4}
@@ -78,10 +88,6 @@ export default function Topbar({socket}) {
               }
             });
             await axios.post(`http://localhost:3003/api/conversation/`, {firstUserId: deletefriendRequestNotification.sendUserId,secondUserId: user._id});
-          dispatch({ type: "ADDFRIEND", payload: deletefriendRequestNotification.sendUserId });
-          setNotifications(notifications.filter((notification)=>{
-            return notification != deletefriendRequestNotification
-          }))
 
           socket.current?.emit("sendNotification", {
             sendUserName: user.username,
@@ -89,6 +95,11 @@ export default function Topbar({socket}) {
             receiveUserId: deletefriendRequestNotification.sendUserId,
             type:5
           });
+
+          dispatch({ type: "ADDFRIEND", payload: deletefriendRequestNotification.sendUserId });
+          setNotifications(notifications.filter((notification)=>{
+            return notification != deletefriendRequestNotification
+          }))
 
         } catch (err) {
         }
@@ -172,6 +183,39 @@ export default function Topbar({socket}) {
                           <button className='friendRequestAlertItemButton' onClick={()=>{handleClickAcceptAddFriend(notification)}}>Accept</button>
                           <button className='friendRequestAlertItemButton' onClick={()=>{handleClickRejectAddFriend(notification)}}>Reject</button>
                       </div>
+                  </div>
+                )
+              }
+              if(notification.type === 5){
+                // setFriendUpdate({
+                //   type: 'addfriend',
+                //   sendUserId: notification.sendUserId
+                // })
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} accept your friend' s request`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  </div>
+                )
+              }
+              if(notification.type === 6){
+                // setFriendUpdate({
+                //   type: 'unfriend',
+                //   sendUserId: notification.sendUserId
+                // })
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} reject your friend' s request`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  </div>
+                )
+              }
+              if(notification.type === 7){
+               
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} unfriend you`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
                   </div>
                 )
               }
