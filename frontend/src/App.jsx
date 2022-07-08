@@ -8,20 +8,27 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { useContext } from "react";
+import { useContext,useRef,useEffect } from "react";
 import { Context } from "./context/Context";
+import { io } from "socket.io-client";
 
 function App() {
 
   const { user } = useContext(Context);
+  const socket = useRef()
+
+  useEffect(() => {
+    socket.current = io("http://localhost:3004");
+    socket.current.emit("addUser", user?._id);
+  }, [user]);
   
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Home /> : <Login />} />
+        <Route path="/" element={user ? <Home socket={socket}/> : <Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile/:username" element={user ? <Profile /> : <Login/>}/>
-        <Route path="/messenger" element={user ? <Messenger /> : <Login/>}/>
+        <Route path="/profile/:username" element={user ? <Profile socket={socket}/> : <Login/>}/>
+        <Route path="/messenger" element={user ? <Messenger socket={socket}/> : <Login/>}/>
       </Routes>
     </Router>
   );

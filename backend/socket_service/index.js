@@ -35,20 +35,21 @@ const io = require("socket.io")(3004, {
     //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
       const user = getUser(receiverId);
-      console.log(users)
       io.to(user.socketId).emit("getMessage", {
         senderId,
         text,
       });
     });
 
-    socket.on("sendNotification", ({ senderName, senderId, receiverId, type, text }) => {
-      const receiver = getUser(receiverId);
+    socket.on("sendNotification", ({ sendUserName, sendUserId, receiveUserId, type, post }) => {
+      const receiver = getUser(receiveUserId);
       if(receiver){
       io.to(receiver.socketId).emit("getNotification", {
-        senderName,
+        sendUserId,
+        sendUserName,
+        receiveUserId,
         type,
-        text,
+        post,
         timestamp: new Date()
       })}
     });

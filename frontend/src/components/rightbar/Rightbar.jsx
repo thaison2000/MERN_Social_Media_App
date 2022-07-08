@@ -13,7 +13,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import WallpaperIcon from '@mui/icons-material/Wallpaper';
 
-export default function Rightbar({ user }) {
+export default function Rightbar({ user,socket }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   const [followings, setFollowings] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -24,6 +24,7 @@ export default function Rightbar({ user }) {
   const [addFriend, setAddFriend] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [background, setBackground] = useState(null);
+  const [friendRequestResult, setFriendRequestResult] = useState({});
   const city = useRef()
   const from = useRef()
 
@@ -71,8 +72,10 @@ export default function Rightbar({ user }) {
   useEffect(() => {
     const getFriendRequest = async () => {
       try {
-        const friendRequest = await axios.get("http://localhost:3001/api/friendRequest/" + currentUser._id + "/" + user?._id);
-        if(friendRequest.data){
+        const friendRequestNotification = await axios.get("http://localhost:3001/api/notification/" + currentUser._id + "/" + user._id + "/" + "4");
+        console.log(user._id)
+        console.log(friendRequestNotification.data)
+        if(friendRequestNotification.data){
           setAddFriend(true)
         }
       } catch (err) {
@@ -85,6 +88,39 @@ export default function Rightbar({ user }) {
     }
 
   }, [user]);
+
+  useEffect(() => {
+    socket.current?.on("getNotification", (data) => {
+      if(data.type == 5){
+        setFriendRequestResult({
+          status: true,
+          sendUserId: data.sendUserId
+        })
+      }
+      if(data.type == 6){
+        setFriendRequestResult({
+          status: false,
+          sendUserId: data.sendUserId
+        })
+      }
+      if(data.type == 7){
+        setFriendRequestResult({
+          status: false,
+          sendUserId: data.sendUserId
+        })
+      }
+    });
+  }, [socket.current]);
+
+  useEffect(() => {
+    setIsFriend(friendRequestResult)
+    if(friendRequestResult.status == true){
+      dispatch({ type: "ADDFRIEND", payload: friendRequestResult.sendUserId })
+    }
+    else{
+      dispatch({ type: "UNFRIEND", payload: friendRequestResult.sendUserId })
+    }
+  }, [friendRequestResult.status]);
 
   const handleClickFollowOrUnfollow = async () => {
     try {
@@ -110,16 +146,32 @@ export default function Rightbar({ user }) {
   const handleClickAddFriend = async () => {
     try {
       if (addFriend) {
-        await axios.delete(`http://localhost:3001/api/friendRequest/`, {
+        await axios.delete(`http://localhost:3001/api/notification/`, {
           data: {
             sendUserId: currentUser._id,
-            receiveUserId: user._id
+            receiveUserId: user._id,
+            sendUserName: currentUser.username,
+            type: 4
           }
         });
-      } else {
-        await axios.post(`http://localhost:3001/api/friendRequest/`, {
+        socket.current?.emit("sendNotification", {
+          sendUserName: currentUser.username,
           sendUserId: currentUser._id,
-          receiveUserId: user._id
+          receiveUserId: user._id,
+          type:3
+        });
+      } else {
+        await axios.post(`http://localhost:3001/api/notification/`, {
+          sendUserId: currentUser._id,
+          receiveUserId: user._id,
+          sendUserName: currentUser.username,
+          type: 4
+        });
+        socket.current?.emit("sendNotification", {
+          sendUserName: currentUser.username,
+          sendUserId: currentUser._id,
+          receiveUserId: user._id,
+          type:4
         });
       }
       setAddFriend(!addFriend)
@@ -133,6 +185,12 @@ export default function Rightbar({ user }) {
         await axios.put(`http://localhost:3001/api/user/` + user._id + '/unfriend', {userId: currentUser._id,});
         await axios.delete(`http://localhost:3003/api/conversation/` + currentUser._id + '/' +  user._id);
         dispatch({ type: "UNFRIEND", payload: user._id });
+        socket.current?.emit("sendNotification", {
+          sendUserName: currentUser.username,
+          sendUserId: currentUser._id,
+          receiveUserId: user._id,
+          type:7
+        });
         setIsFriend(false)
     } catch (err) {
     }

@@ -5,45 +5,47 @@ import { Link } from "react-router-dom";
 import { useContext,useRef,useState,useEffect } from "react";
 import { Context } from "../../context/Context";
 import axios from "axios";
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { format } from "timeago.js";
 
 export default function Topbar({socket}) {
   const { user,dispatch } = useContext(Context);
-  const [friendRequestAlert, setFriendRequestAlert] = useState(false);
-  const [friendRequestUsers, setFriendRequestUsers] = useState([]);
   const [notificationAlert, setNotificationAlert] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [countNewNotifications, setCountNewNotifications] = useState(-1);
   const [newNotification, setNewNotification] = useState();
+  const [deletedfriendRequestNotification, setDeletedFriendRequestNotification] = useState();
   const  usernameSearch = useRef();
+  const scrollRef = useRef()
 
   let navigate = useNavigate()
 
   useEffect(() => {
-        const getFriendRequestUsers = async () => {
-          try {             
-            const userList = await axios.get("http://localhost:3001/api/friendRequest/user/list/" + user._id);
-            setFriendRequestUsers(userList.data);
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [notifications]);
+
+  useEffect(() => {
+        const getNotifications = async () => {
+          try {
+            const res = await axios.get("http://localhost:3001/api/notification/" + user._id);
+            setNotifications(res.data);
           } catch (err) {
             console.log(err);
           }
         };
-        if(user){
-          getFriendRequestUsers();
-    
-        }
-    
-      }, [user]);
+        getNotifications();
+      }, []);
 
   useEffect(() => {
         socket.current?.on("getNotification", (data) => {
           console.log(data)
           setNewNotification({
-            senderName: data.senderName,
+            sendUserId: data.sendUserId,
+            sendUserName: data.sendUserName,
+            receiveUserId: data.receiveUserId,
             type: data.type,
-            text: data.text,
-            timestamp: data.timestamp
+            post: data.post,
+            createdAt: data.timestamp
           })
         });
       }, [socket.current]);
@@ -51,45 +53,68 @@ export default function Topbar({socket}) {
   useEffect(() => {
         newNotification &&
           setNotifications((prev) => [...prev, newNotification]);
+          setCountNewNotifications(countNewNotifications + 1)
       }, [newNotification]);
     
 
-    const handleClickAcceptAddFriend = async (deletefriendRequestUser) => {
+  useEffect(() => {
+        deletedfriendRequestNotification &&
+          setNotifications(notifications.filter((notification)=>{
+            let deletedValue = {...deletedfriendRequestNotification,type:4}
+            
+            return (notification.sendUserName !== deletedValue.sendUserName && notification.type !== deletedValue.type) && notification !== deletedfriendRequestNotification
+          }));
+          console.log(notifications)
+      }, [deletedfriendRequestNotification]);
+
+    const handleClickAcceptAddFriend = async (deletefriendRequestNotification) => {
         try {
-            await axios.put(`http://localhost:3001/api/user/` + user._id +'/addfriend', {userId: deletefriendRequestUser._id,});
-            await axios.delete(`http://localhost:3001/api/friendRequest`, {
+            await axios.put(`http://localhost:3001/api/user/` + user._id +'/addfriend', {userId: deletefriendRequestNotification.sendUserId,});
+            await axios.delete(`http://localhost:3001/api/notification`, {
               data: {
-                sendUserId: deletefriendRequestUser._id,
-                receiveUserId: user._id
+                sendUserId: deletefriendRequestNotification.sendUserId,
+                receiveUserId: user._id,
+                type: 4
               }
             });
-            await axios.post(`http://localhost:3003/api/conversation/`, {firstUserId: deletefriendRequestUser._id,secondUserId: user._id});
-          setFriendRequestUsers(friendRequestUsers.filter((friendRequestUser)=>{
-            return friendRequestUser != deletefriendRequestUser
+            await axios.post(`http://localhost:3003/api/conversation/`, {firstUserId: deletefriendRequestNotification.sendUserId,secondUserId: user._id});
+          dispatch({ type: "ADDFRIEND", payload: deletefriendRequestNotification.sendUserId });
+          setNotifications(notifications.filter((notification)=>{
+            return notification != deletefriendRequestNotification
           }))
-          dispatch({ type: "ADDFRIEND", payload: deletefriendRequestUser._id });
+
+          socket.current?.emit("sendNotification", {
+            sendUserName: user.username,
+            sendUserId: deletefriendRequestNotification.receiveUserId,
+            receiveUserId: deletefriendRequestNotification.sendUserId,
+            type:5
+          });
+
         } catch (err) {
         }
       };
 
-    const handleClickRejectAddFriend = async (deletefriendRequestUser) => {
+    const handleClickRejectAddFriend = async (deletefriendRequestNotification) => {
         try {
-            await axios.delete(`http://localhost:3001/api/friendRequest`, {
+            await axios.delete(`http://localhost:3001/api/notification`, {
               data: {
-                sendUserId: deletefriendRequestUser._id,
-                receiveUserId: user._id
+                sendUserId: deletefriendRequestNotification.sendUserId,
+                receiveUserId: user._id,
+                type: 4
               }
             });
-          setFriendRequestUsers(friendRequestUsers.filter((friendRequestUser)=>{
-            return friendRequestUser != deletefriendRequestUser
+          setNotifications(notifications.filter((notification)=>{
+            return notification != deletefriendRequestNotification
           }))
+          socket.current?.emit("sendNotification", {
+            sendUserName: user.username,
+            sendUserId: deletefriendRequestNotification.receiveUserId,
+            receiveUserId: deletefriendRequestNotification.sendUserId,
+            type:6
+          });
         } catch (err) {
         }
     };
-  
-  const handleClickFriendRequestAlert = ()=>{
-    setFriendRequestAlert(!friendRequestAlert)
-  }
 
   const handleClickNotificationAlert = ()=>{
     setNotificationAlert(!notificationAlert)
@@ -111,49 +136,54 @@ export default function Topbar({socket}) {
     }
   }
 
-  
-
-  const FriendRequestAlertContainer = () => {
-    return (
-      <div className='friendRequestAlert'>
-          {friendRequestUsers? 
-          friendRequestUsers.map((friendRequestUser)=>{
-              return (
-                  <div className="friendRequestAlertItem" key={friendRequestUser._id}>
-                      <span className="friendRequestAlertItemDesc">You have a <b>friend request</b> from <b>{friendRequestUser.username}</b></span>
-                      <div className="friendRequestAlertItemButtons">
-                          <button className='friendRequestAlertItemButton' onClick={()=>{handleClickAcceptAddFriend(friendRequestUser)}}>Accept</button>
-                          <button className='friendRequestAlertItemButton' onClick={()=>{handleClickRejectAddFriend(friendRequestUser)}}>Reject</button>
-                      </div>
-                      
-                  </div>
-              )
-          }): null
-          }
-      </div>
-    )
-  }
-
-
   const NotificationAlertContainer = () => {
     return (
       <div className='notificationAlert'>
             {notifications.map((notification)=> {
-              console.log('gg')
               let action;
 
               if (notification.type === 1) {
                 action = "liked";
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} ${action} your post:  "${notification.post.substring(0,50)}..."`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  </div>
+                )
               } 
-              else{
+              if(notification.type === 2){
                 action = "commented";
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} ${action} your post:  "${notification.post.substring(0,50)}..."`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  </div>
+                )
               }
-              return (
-              <div className="notificationAlertItem">
-              <span className="notificationAlertItemDesc">{`${notification.senderName} ${action} your post:  "${notification.text.substring(0,50)}..."`}</span>
-              <div className="notificationDate">{format(notification.timestamp)}</div>
-              </div>
-            )} )}
+              if(notification.type === 3){
+                setDeletedFriendRequestNotification(notification)
+              }
+              if(notification.type === 4){
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{` You have a friend request from ${notification.sendUserName}`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  <div className="friendRequestAlertItemButtons">
+                          <button className='friendRequestAlertItemButton' onClick={()=>{handleClickAcceptAddFriend(notification)}}>Accept</button>
+                          <button className='friendRequestAlertItemButton' onClick={()=>{handleClickRejectAddFriend(notification)}}>Reject</button>
+                      </div>
+                  </div>
+                )
+              }
+              if(notification.type === 8){
+                return (
+                  <div className="notificationAlertItem" ref={scrollRef}>
+                  <span className="notificationAlertItemDesc">{`${notification.sendUserName} send you a message:  "${notification.post.substring(0,50)}..."`}</span>
+                  <div className="notificationDate">{format(notification.createdAt)}</div>
+                  </div>
+                )
+              }
+              } )}
       </div>
     )
   }
@@ -178,13 +208,8 @@ export default function Topbar({socket}) {
       <div className="topbarRight">
           <div className="topbarRightNotificationAlert" onClick={handleClickNotificationAlert}>
             <NotificationsIcon/>
-            <span className="topbarRightNotificationAlertIconBadge">{notifications.length}</span>
+            <span className="topbarRightNotificationAlertIconBadge">{countNewNotifications}</span>
             {notificationAlert ? <NotificationAlertContainer/>: null}
-          </div>
-          <div className="topbarRightFriendRequestAlert" onClick={handleClickFriendRequestAlert}>
-            <GroupAddIcon/>
-            <span className="topbarRightFriendRequestAlertIconBadge">{friendRequestUsers.length}</span>
-            {friendRequestAlert ? <FriendRequestAlertContainer/>: null}
           </div>
           <Link to={'/profile/'+ user.username}>
           <img

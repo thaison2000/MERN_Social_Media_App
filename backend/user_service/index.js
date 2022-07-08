@@ -9,7 +9,7 @@ const morgan = require("morgan");
 const multer = require("multer");
 const userRoute = require("./routes/user");
 const authRoute = require("./routes/auth");
-const friendRequestRoute = require("./routes/friendRequest");
+const notificationRoute = require("./routes/notification");
 const path = require("path");
 
 dotenv.config();
@@ -49,8 +49,7 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
 
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
-app.use("/api/friendRequest", friendRequestRoute);
-
+app.use("/api/notification", notificationRoute);
 
 app.listen(3001, () => {
   console.log("User service is running!");

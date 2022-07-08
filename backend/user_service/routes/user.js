@@ -143,6 +143,7 @@ router.put("/:id/addfriend", async (req, res) => {
     try {
       const receiveUser = await User.findById(req.params.id);
       const sendUser = await User.findById(req.body.userId);
+      console.log(sendUser)
       if (!receiveUser.friends.includes(req.body.userId)) {
         await receiveUser.updateOne({ $push: { friends: req.body.userId } });
         await sendUser.updateOne({ $push: { friends: req.params.id } });

@@ -3,23 +3,13 @@ import Topbar from "../../components/topbar/Topbar";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Feed from "../../components/feed/Feed";
 import Rightbar from "../../components/rightbar/Rightbar";
-import { useEffect, useState,useRef,useContext } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
-import { io } from "socket.io-client";
-import { Context } from "../../context/Context";
 
-export default function Profile() {
+export default function Profile({socket}) {
   const [user, setUser] = useState();
   const username = useParams().username;
-  const {user: currentUser} = useContext(Context);
-
-  const socket = useRef()
-
-  useEffect(() => {
-    socket.current = io("http://localhost:3004");
-    socket.current.emit("addUser", currentUser._id);
-  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -64,7 +54,7 @@ export default function Profile() {
           </div>
           <div className="profileRightBottom">
             <Feed username={username} socket={socket}/>
-            <Rightbar user={user}/>
+            <Rightbar user={user} socket={socket}/>
           </div>
         </div>
       </div>:null}

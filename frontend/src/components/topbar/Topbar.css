@@ -164,14 +164,16 @@
   top: 30px;
   right: 200px;
   z-index: 1;
-  background-color: rgb(236, 219, 219);
+  background-color: rgb(196, 181, 212);
   border-radius: 10px;
+  overflow-y: scroll;
 }
 
 .notificationAlertItem{
   background-color: white;
   margin:20px;
   padding: 10px;
+  border-radius: 10px;
 }
 
 .notificationAlertItemDesc{

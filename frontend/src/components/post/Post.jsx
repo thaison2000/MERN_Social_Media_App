@@ -64,15 +64,30 @@ export default function Post({ post,socket }) {
     setLikes(isLiked ? likes - 1 : likes + 1);
     setIsLiked(!isLiked);
 
-    if(isLiked == false)
+    if(isLiked == false){
+
+      try {
+        axios.post("http://localhost:3001/api/notification",{ 
+          sendUserId: currentUser._id,
+          sendUserName: currentUser.username,
+          receiveUserId: post.userId,
+          type: 1,
+          post: post.desc
+        });
+      } 
+      catch (err) {
+        console.log(err)
+      }
+
       socket.current?.emit("sendNotification", {
-        senderName: currentUser.username,
-        senderId: currentUser._id,
-        receiverId: post.userId,
-        text: post.desc,
+        sendUserName: currentUser.username,
+        senduserId: currentUser._id,
+        receiveUserId: post.userId,
+        post: post.desc,
         type:1
       });
-  };
+    };
+  }
 
   //xu ly khi comment bai dang
   const handleCommmentSubmit = async () =>{
@@ -83,10 +98,10 @@ export default function Post({ post,socket }) {
       setCommentUsers([...commentusers,currentUser])
 
       socket.current?.emit("sendNotification", {
-        senderName: currentUser.username,
-        senderId: currentUser._id,
-        receiverId: post.userId,
-        text: post.desc,
+        sendUserName: currentUser.username,
+        sendUserId: currentUser._id,
+        receiveUserId: post.userId,
+        post: post.desc,
         type:2
       });
     } catch (err) {
