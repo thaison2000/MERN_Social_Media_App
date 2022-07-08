@@ -96,10 +96,12 @@ router.get("/timeline/:id", async (req, res) => {
     let value = []
     for(let i=0;i<timelinePost.length;i++){
       const comments = await Comment.find({ postId: timelinePost[i]._id });
+      const user = await User.findById(timelinePost[i].userId)
 
       value.push({
         _id: timelinePost[i]._id,
         userId: timelinePost[i].userId,
+        user: user,
         desc: timelinePost[i].desc,
         likes: timelinePost[i].likes,
         createdAt: timelinePost[i].createdAt,
@@ -107,8 +109,8 @@ router.get("/timeline/:id", async (req, res) => {
         comments: comments,
         img: timelinePost[i].img
       })
+
     }
-    console.log(value)
     res.status(200).json(value);
   } catch (err) {
     res.status(500).json(err);
