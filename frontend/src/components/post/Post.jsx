@@ -197,7 +197,7 @@ export default function Post({ post,socket }) {
           <div className="postBottomLeft">
             {isLiked ? 
             <ThumbUpIcon
-              htmlColor="DodgerBlue"
+              htmlColor="lightseagreen"
               className="likeIcon"
               onClick={handleClickLike}
               alt=""

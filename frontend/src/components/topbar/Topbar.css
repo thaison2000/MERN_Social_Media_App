@@ -119,27 +119,6 @@
   position: relative;
  }
 
- .friendRequestAlert{
-  width: 30%;
-  height: 500px;
-  position: fixed;
-  top: 30px;
-  right: 200px;
-  z-index: 1;
-  background-color: rgb(236, 219, 219);
-  border-radius: 10px;
-}
-
-.friendRequestAlertItem{
-  background-color: white;
-  margin:20px;
-  padding: 10px;
-}
-
-.friendRequestAlertItemDesc{
-  color: gray;
-}
-
 .friendRequestAlertItemButtons{
   display: flex;
   align-items: center;
@@ -154,26 +133,24 @@
     border-radius: 5px;
     font-weight: 500;
     color: white;
-    background-color: rgb(194, 31, 169);
+    background-color: lightseagreen;
 }
 
 .notificationAlert{
   width: 30%;
   height: 500px;
   position: fixed;
-  top: 30px;
+  padding: 10px;
+  top: 8px;
   right: 200px;
   z-index: 1;
-  background-color: rgb(196, 181, 212);
-  border-radius: 10px;
+  background-color: rgb(240, 193, 128);
   overflow-y: scroll;
 }
 
 .notificationAlertItem{
   background-color: white;
-  margin:20px;
   padding: 10px;
-  border-radius: 10px;
 }
 
 .notificationAlertItemDesc{
@@ -184,6 +161,7 @@
   display: flex;
   align-items: center;
   justify-content: left;
+  margin-right: 20px;
 }
 
 .topbarRightNotificationAlertIconBadge{

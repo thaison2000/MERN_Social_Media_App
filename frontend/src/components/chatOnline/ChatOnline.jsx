@@ -38,8 +38,8 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat }) {
             <img
               className="chatOnlineImg"
               src={
-                o?.profilePicture
-                  ? 'http://localhost:3001/user/images/' + o.profilePicture
+                o?.avatar
+                  ? 'http://localhost:3001/user/images/' + o.avatar
                   : 'http://localhost:3001/user/images/person/noAvatar.png'
               }
               alt=""

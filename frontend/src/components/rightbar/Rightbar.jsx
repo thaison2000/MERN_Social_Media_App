@@ -135,8 +135,6 @@ export default function Rightbar({ user,socket }) {
           userId: currentUser._id,
         });
         dispatch({ type: "FOLLOW", payload: user._id });
-        // let newUser = currentUser.push(user._id)
-        // localStorage.setUser(newUser)
       }
       setFollowed(!followed);
     } catch (err) {
@@ -241,10 +239,8 @@ export default function Rightbar({ user,socket }) {
           } catch (err) {}
         }
         const res = await axios.put("http://localhost:3001/api/user/"+ currentUser._id,updateUser);
-        dispatch({type: 'UPDATE_PROFILE',payload: res.data});
-        localStorage.setItem('user',updateUser)
-        setProfileUpdate((prevState)=>{
-          return !prevState})
+        dispatch({type: 'UPDATE_PROFILE',payload: updateUser});
+        window.location.reload()
     }catch (err) {
       console.log(err)
     }

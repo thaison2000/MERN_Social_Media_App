@@ -18,8 +18,7 @@ export default function Messenger({socket}) {
   const scrollRef = useRef();
 
   useEffect(() => {
-    socket.current.on("getMessage", (data) => {
-      console.log(data)
+    socket.current?.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -35,7 +34,7 @@ export default function Messenger({socket}) {
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
-    socket.current.on("getUsers", (users) => {
+    socket.current?.on("getUsers", (users) => {
       setOnlineUsers(
         user.followings.filter((f) => users.some((u) => u.userId === f))
       );
@@ -143,12 +142,12 @@ export default function Messenger({socket}) {
                   ))}
                 </div>
                 <div className="chatBoxBottom">
-                  <textarea
+                  <input
                     className="chatMessageInput"
                     placeholder="write something..."
                     onChange={(e) => setNewMessage(e.target.value)}
                     value={newMessage}
-                  ></textarea>
+                  />
                   <button className="chatSubmitButton" onClick={handleSubmit}>
                     Send
                   </button>
