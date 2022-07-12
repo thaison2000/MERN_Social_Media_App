@@ -20,7 +20,7 @@ function App() {
   useEffect(() => {
     socket.current = io("http://localhost:3004");
     socket.current.emit("addUser", user?._id);
-  }, [user]);
+  }, []);
   
   return (
     <Router>

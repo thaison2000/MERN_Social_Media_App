@@ -24,8 +24,40 @@ export default function Rightbar({ user,socket }) {
   const [addFriend, setAddFriend] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [background, setBackground] = useState(null);
+  const [newNotification, setNewNotification] = useState({});
+  
   const city = useRef()
   const from = useRef()
+
+  useEffect(() => {
+    socket.current?.on("getNotification", (data) => {
+      setNewNotification({
+        sendUserId: data.sendUserId,
+        sendUserName: data.sendUserName,
+        receiveUserId: data.receiveUserId,
+        type: data.type,
+        post: data.post,
+        createdAt: data.timestamp
+      })
+    });
+  }, [socket.current]);
+
+  useEffect(() => {
+    if(newNotification.type == 5){
+      console.log(newNotification.sendUserId)
+      dispatch({ type: "ADDFRIEND", payload: newNotification.sendUserId });
+      setIsFriend(true)
+    }
+    if(newNotification.type == 6){
+      setAddFriend(false)
+    }
+    if(newNotification.type == 7){
+      console.log(newNotification.sendUserId)
+      dispatch({ type: "UNFRIEND", payload: newNotification.sendUserId });
+      setIsFriend(false)
+      setAddFriend(false)
+    }
+  }, [newNotification]);
 
 
   useEffect(()=>{
@@ -154,6 +186,7 @@ export default function Rightbar({ user,socket }) {
           type:7
         });
         setIsFriend(false)
+        setAddFriend(false)
     } catch (err) {
     }
   };

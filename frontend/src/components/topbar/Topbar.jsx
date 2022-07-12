@@ -15,7 +15,6 @@ export default function Topbar({socket}) {
   const [countNewNotifications, setCountNewNotifications] = useState(-1);
   const [newNotification, setNewNotification] = useState();
   const [deletedfriendRequestNotification, setDeletedFriendRequestNotification] = useState();
-  const [friendUpdate, setFriendUpdate] = useState({});
   const  usernameSearch = useRef();
   const scrollRef = useRef()
 
@@ -56,16 +55,6 @@ export default function Topbar({socket}) {
           setNotifications((prev) => [...prev, newNotification]);
           setCountNewNotifications(countNewNotifications + 1)
       }, [newNotification]);
-    
-
-  useEffect(() => {
-        if(friendUpdate.type == 'addfriend'){
-          dispatch({ type: "ADDFRIEND", payload: friendUpdate.sendUserId });
-        }
-        else{
-          dispatch({ type: "UNFRIEND", payload: friendUpdate.sendUserId });
-        }
-      }, [friendUpdate]);
 
   useEffect(() => {
         deletedfriendRequestNotification &&
@@ -187,10 +176,6 @@ export default function Topbar({socket}) {
                 )
               }
               if(notification.type === 5){
-                // setFriendUpdate({
-                //   type: 'addfriend',
-                //   sendUserId: notification.sendUserId
-                // })
                 return (
                   <div className="notificationAlertItem" ref={scrollRef}>
                   <span className="notificationAlertItemDesc">{`${notification.sendUserName} accept your friend' s request`}</span>
@@ -199,10 +184,6 @@ export default function Topbar({socket}) {
                 )
               }
               if(notification.type === 6){
-                // setFriendUpdate({
-                //   type: 'unfriend',
-                //   sendUserId: notification.sendUserId
-                // })
                 return (
                   <div className="notificationAlertItem" ref={scrollRef}>
                   <span className="notificationAlertItemDesc">{`${notification.sendUserName} reject your friend' s request`}</span>
@@ -210,8 +191,7 @@ export default function Topbar({socket}) {
                   </div>
                 )
               }
-              if(notification.type === 7){
-               
+              if(notification.type === 7){              
                 return (
                   <div className="notificationAlertItem" ref={scrollRef}>
                   <span className="notificationAlertItemDesc">{`${notification.sendUserName} unfriend you`}</span>
